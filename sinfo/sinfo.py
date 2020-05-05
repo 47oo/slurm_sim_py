@@ -1,0 +1,28 @@
+import json
+import grpc
+from google.protobuf.json_format import MessageToDict
+from protobuf import slurm_pb2_grpc,slurm_pb2
+from utils.read_conf import read_conf
+from utils.CMD import CMD
+
+
+_SPACE_='    '
+_slurm_conf = read_conf()
+_HOST = _slurm_conf['slurm_sim']['server']['host']
+_PORT = _slurm_conf['slurm_sim']['server']['port']
+
+
+def sinfo():
+    conn = grpc.insecure_channel("{}:{}".format(_HOST,_PORT))
+    client = slurm_pb2_grpc.SlurmctldServiceStub(channel=conn)
+    request = slurm_pb2.CMDRequest(cmd="sinfo",type=CMD.SINFO.value)
+    result = client.cmd(request).result
+    partition_info = json.loads(result)
+    print("{0:10}{1:10}{2:10}{3}".format("Partition","State","Num","NodeList"))
+    for info in partition_info:
+        print("{0:10}{1:10}{2:<10}{3}".format(info['partition_name'],
+                                                      info['state'], info['num'], info['nodelist']))
+
+
+if __name__ == '__main__':
+    sinfo()

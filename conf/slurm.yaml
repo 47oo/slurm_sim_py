@@ -1,0 +1,15 @@
+slurm_sim:
+
+  # 绑定的ip地址和端口
+  server:
+    host: 127.0.0.1
+    port: 2333
+  # 设置分区，目前只支持一个分区
+  partition:
+    name: all
+    nodelist: 'cn[0-500000]'
+  # 设置加速时间比,理论上1000s等于实际时间1s,且最少实际运行时间为1s
+  timespeed: 1
+  # 开启模拟器的时候第一个作业的ID
+  first_jobid: 1
+

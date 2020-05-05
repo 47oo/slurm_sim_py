@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package proto;
+
+service UserService {
+    rpc GetUserById(DetailRequest) returns (User){}
+    rpc GetUsers(QueryUserListRequest) returns (UserList){}
+}
+
+message QueryUserListRequest {
+    uint64 started_at = 1;
+    uint64 ended_at = 2;
+}
+
+message DetailRequest {
+    int32 id = 1;
+}
+
+message UserList {
+  repeated User users = 1;
+}
+
+message User {
+    int32  id = 1;
+    string username = 2;
+}

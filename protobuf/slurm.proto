@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package proto;
+
+
+message CMDRequest {
+    string cmd = 1;
+    enum CMD {
+        SINFO = 0;
+        SRUN = 1;
+        SQUEUE = 2;
+        SACCT = 3;
+    };
+    CMD type = 2;
+}
+
+message ResultResponse {
+    string result = 1;
+}
+
+service SlurmctldService {
+    rpc cmd(CMDRequest) returns(ResultResponse){}
+}

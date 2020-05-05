@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+import os
+import getpass
+import sys,getopt
+root_path = root_path = os.path.abspath(
+         os.path.dirname(__file__)).split('bin')[0]
+sys.path.append(root_path)
+
+import json
+import grpc
+from protobuf import slurm_pb2_grpc,slurm_pb2
+from utils.read_conf import read_conf
+from utils.CMD import CMD
+
+
+
+_SPACE_='    '
+_slurm_conf = read_conf()
+_HOST = _slurm_conf['slurm_sim']['server']['host']
+_PORT = _slurm_conf['slurm_sim']['server']['port']
+
+
+def srun(cmd):
+    conn = grpc.insecure_channel("{}:{}".format(_HOST,_PORT))
+    client = slurm_pb2_grpc.SlurmctldServiceStub(channel=conn)
+    request = slurm_pb2.CMDRequest(cmd=cmd,type=CMD.SRUN.value)
+    result = client.cmd(request).result
+    print(result)
+
+if __name__ == '__main__':
+    username = getpass.getuser()
+    nodelist = 'cn0'
+    real_runtime = 20
+    exec_name = sys.argv[-1]
+    opts,args = getopt.getopt(sys.argv[1:],"hw:t:")
+    for opt,arg in opts:
+        if opt == '-h':
+            print("srun -w cn[0-299] -t 30 ./exe")
+            sys.exit(0)
+        elif opt == '-w':
+            nodelist = arg
+        elif opt == '-t':
+            real_runtime = int(arg)
+    cmd = {
+        'nodelist':nodelist,
+        'real_runtime':real_runtime,
+        'username':username,
+        'exec_name':exec_name
+    }
+    srun(json.dumps(cmd))
+
